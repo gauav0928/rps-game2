@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="mr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rock · Paper · Scissors — साधे गेम</title>
+  <style>
+    :root{--bg:#0f172a;--card:#0b1220;--accent:#7c3aed;--muted:#94a3b8;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071023, #041024);color:#e6eef8}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+    .card{width:100%;max-width:720px;background:var(--card);border-radius:14px;padding:22px;box-shadow:0 8px 30px rgba(2,6,23,0.6);backdrop-filter:blur(6px)}
+    h1{margin:0 0 8px;font-size:22px;display:flex;align-items:center;gap:10px}
+    p.lead{margin:0 0 18px;color:var(--muted)}
+
+    .scoreboard{display:flex;gap:10px;align-items:center;margin-bottom:18px}
+    .score{background:var(--glass);padding:10px 14px;border-radius:10px;text-align:center;min-width:90px}
+    .score strong{display:block;font-size:18px}
+    .choices{display:flex;gap:12px;justify-content:center;margin:18px 0}
+    .btn{cursor:pointer;border:0;padding:14px 18px;border-radius:10px;font-size:18px;min-width:110px;background:transparent;color:inherit;border:1px solid rgba(255,255,255,0.06)}
+    .btn:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,0.35)}
+    .big{font-size:28px}
+
+    .result{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;background:linear-gradient(90deg,rgba(255,255,255,0.02),transparent);margin-top:14px}
+    .result .text{flex:1;padding-right:12px}
+    .result .text h2{margin:0 0 6px}
+    .result .text p{margin:0;color:var(--muted)}
+
+    .footer{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:14px}
+    .small{font-size:13px;color:var(--muted)}
+
+    .win{border:1px solid rgba(34,197,94,0.14);box-shadow:0 6px 18px rgba(34,197,94,0.05)}
+    .lose{border:1px solid rgba(239,68,68,0.14);box-shadow:0 6px 18px rgba(239,68,68,0.05)}
+    .draw{border:1px solid rgba(241,245,249,0.03)}
+
+    @media (max-width:560px){.choices{flex-direction:column}.btn{min-width:unset;width:100%}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>✊ ✋ ✌️ Rock · Paper · Scissors</h1>
+      <p class="lead">HTML, CSS आणि JavaScript वापरून बनवलेले साधे गेम. तुमचा आणि संगणकाचा स्कोअर ठेवतो.</p>
+
+      <div class="scoreboard">
+        <div class="score"><span class="small">तुम्ही</span><strong id="playerScore">0</strong></div>
+        <div class="score"><span class="small">संगणक</span><strong id="computerScore">0</strong></div>
+        <div style="flex:1"></div>
+        <div class="small">सर्वात शेवटचे निर्णय: <span id="lastRound">-</span></div>
+      </div>
+
+      <div class="choices" role="group" aria-label="choices">
+        <button class="btn" data-move="rock" title="Rock">✊ Rock</button>
+        <button class="btn" data-move="paper" title="Paper">✋ Paper</button>
+        <button class="btn" data-move="scissors" title="Scissors">✌️ Scissors</button>
+      </div>
+
+      <div class="result" id="resultBox">
+        <div class="text">
+          <h2 id="resultText">खाली निवडा — चालू आहे</h2>
+          <p id="roundInfo">तुम्ही आणि संगणक कोणता पर्याय निवडला ते इथे दिसेल.</p>
+        </div>
+        <div style="text-align:right">
+          <div class="small">तुमची निवड</div>
+          <div id="playerPick" style="font-size:26px; margin-top:6px">—</div>
+          <div class="small" style="margin-top:10px">संगणकची निवड</div>
+          <div id="computerPick" style="font-size:26px;margin-top:6px">—</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button id="resetBtn" class="btn">रीसेट</button>
+        <div style="flex:1"></div>
+        <div class="small">कीबोर्ड: R = Rock, P = Paper, S = Scissors</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // साधा RPS लॉजिक
+    const moves = ['rock','paper','scissors'];
+    const winMap = {rock: 'scissors', paper: 'rock', scissors: 'paper'}; // जो पर्याय हरवतो
+
+    const playerScoreEl = document.getElementById('playerScore');
+    const computerScoreEl = document.getElementById('computerScore');
+    const resultText = document.getElementById('resultText');
+    const roundInfo = document.getElementById('roundInfo');
+    const playerPick = document.getElementById('playerPick');
+    const computerPick = document.getElementById('computerPick');
+    const lastRound = document.getElementById('lastRound');
+
+    let playerScore = 0, computerScore = 0;
+
+    function randomMove(){
+      return moves[Math.floor(Math.random()*moves.length)];
+    }
+
+    function emojiFor(move){
+      if(move === 'rock') return '✊ Rock';
+      if(move === 'paper') return '✋ Paper';
+      return '✌️ Scissors';
+    }
+
+    function playRound(playerMove){
+      const compMove = randomMove();
+      playerPick.textContent = emojiFor(playerMove);
+      computerPick.textContent = emojiFor(compMove);
+
+      if(playerMove === compMove){
+        resultText.textContent = 'ड्रॉ — सम';
+        roundInfo.textContent = `${emojiFor(playerMove)} विरुद्ध ${emojiFor(compMove)}`;
+        setResultStyle('draw');
+      } else if(winMap[playerMove] === compMove){
+        // player wins
+        playerScore++;
+        playerScoreEl.textContent = playerScore;
+        resultText.textContent = 'तुम्ही जिंकले 🎉';
+        roundInfo.textContent = `${emojiFor(playerMove)} विजय ${emojiFor(compMove)}`;
+        setResultStyle('win');
+      } else {
+        // computer wins
+        computerScore++;
+        computerScoreEl.textContent = computerScore;
+        resultText.textContent = 'संगणक जिंकले 😵';
+        roundInfo.textContent = `${emojiFor(compMove)} हरवले ${emojiFor(playerMove)}`;
+        setResultStyle('lose');
+      }
+
+      lastRound.textContent = `${playerScore} - ${computerScore}`;
+    }
+
+    function setResultStyle(kind){
+      const box = document.getElementById('resultBox');
+      box.classList.remove('win','lose','draw');
+      box.classList.add(kind);
+    }
+
+    // बटणे ऐकणे
+    document.querySelectorAll('.btn[data-move]').forEach(btn=>{
+      btn.addEventListener('click', ()=> playRound(btn.dataset.move));
+    });
+
+    // रीसेट
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      playerScore = 0; computerScore = 0;
+      playerScoreEl.textContent = '0';
+      computerScoreEl.textContent = '0';
+      resultText.textContent = 'रीसेट झाले — पुन्हा सुरुवात करा';
+      roundInfo.textContent = '';
+      playerPick.textContent = '—';
+      computerPick.textContent = '—';
+      lastRound.textContent = '-';
+      setResultStyle('draw');
+    });
+
+    // कीबोर्ड शॉर्टकट्स
+    window.addEventListener('keydown', (e)=>{
+      const k = e.key.toLowerCase();
+      if(k === 'r') playRound('rock');
+      if(k === 'p') playRound('paper');
+      if(k === 's') playRound('scissors');
+    });
+
+    // सुरुवातीची स्थिती
+    setResultStyle('draw');
+  </script>
+</body>
+</html>
