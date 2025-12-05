@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="mr">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rock · Paper · Scissors — साधे गेम</title>
+  <title>Rock · Paper · Scissors — Simple Game</title>
   <style>
     :root{--bg:#0f172a;--card:#0b1220;--accent:#7c3aed;--muted:#94a3b8;--glass:rgba(255,255,255,0.03)}
     *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
@@ -40,13 +40,13 @@
   <div class="wrap">
     <div class="card">
       <h1>✊ ✋ ✌️ Rock · Paper · Scissors</h1>
-      <p class="lead">HTML, CSS आणि JavaScript वापरून बनवलेले साधे गेम. तुमचा आणि संगणकाचा स्कोअर ठेवतो.</p>
+      
 
       <div class="scoreboard">
-        <div class="score"><span class="small">तुम्ही</span><strong id="playerScore">0</strong></div>
-        <div class="score"><span class="small">संगणक</span><strong id="computerScore">0</strong></div>
+        <div class="score"><span class="small">You</span><strong id="playerScore">0</strong></div>
+        <div class="score"><span class="small">Computer</span><strong id="computerScore">0</strong></div>
         <div style="flex:1"></div>
-        <div class="small">सर्वात शेवटचे निर्णय: <span id="lastRound">-</span></div>
+        <div class="small">Last score: <span id="lastRound">-</span></div>
       </div>
 
       <div class="choices" role="group" aria-label="choices">
@@ -57,29 +57,29 @@
 
       <div class="result" id="resultBox">
         <div class="text">
-          <h2 id="resultText">खाली निवडा — चालू आहे</h2>
-          <p id="roundInfo">तुम्ही आणि संगणक कोणता पर्याय निवडला ते इथे दिसेल.</p>
+          <h2 id="resultText">Choose an option — Ready</h2>
+          <p id="roundInfo">Your and the computer's choices will appear here.</p>
         </div>
         <div style="text-align:right">
-          <div class="small">तुमची निवड</div>
+          <div class="small">Your pick</div>
           <div id="playerPick" style="font-size:26px; margin-top:6px">—</div>
-          <div class="small" style="margin-top:10px">संगणकची निवड</div>
+          <div class="small" style="margin-top:10px">Computer pick</div>
           <div id="computerPick" style="font-size:26px;margin-top:6px">—</div>
         </div>
       </div>
 
       <div class="footer">
-        <button id="resetBtn" class="btn">रीसेट</button>
+        <button id="resetBtn" class="btn">Reset</button>
         <div style="flex:1"></div>
-        <div class="small">कीबोर्ड: R = Rock, P = Paper, S = Scissors</div>
+        <div class="small">Keyboard: R = Rock, P = Paper, S = Scissors</div>
       </div>
     </div>
   </div>
 
   <script>
-    // साधा RPS लॉजिक
+    // Simple RPS logic
     const moves = ['rock','paper','scissors'];
-    const winMap = {rock: 'scissors', paper: 'rock', scissors: 'paper'}; // जो पर्याय हरवतो
+    const winMap = {rock: 'scissors', paper: 'rock', scissors: 'paper'}; // what each move beats
 
     const playerScoreEl = document.getElementById('playerScore');
     const computerScoreEl = document.getElementById('computerScore');
@@ -107,22 +107,22 @@
       computerPick.textContent = emojiFor(compMove);
 
       if(playerMove === compMove){
-        resultText.textContent = 'ड्रॉ — सम';
-        roundInfo.textContent = `${emojiFor(playerMove)} विरुद्ध ${emojiFor(compMove)}`;
+        resultText.textContent = 'Draw — Tie';
+        roundInfo.textContent = `${emojiFor(playerMove)} vs ${emojiFor(compMove)}`;
         setResultStyle('draw');
       } else if(winMap[playerMove] === compMove){
         // player wins
         playerScore++;
         playerScoreEl.textContent = playerScore;
-        resultText.textContent = 'तुम्ही जिंकले 🎉';
-        roundInfo.textContent = `${emojiFor(playerMove)} विजय ${emojiFor(compMove)}`;
+        resultText.textContent = 'You win 🎉';
+        roundInfo.textContent = `${emojiFor(playerMove)} beats ${emojiFor(compMove)}`;
         setResultStyle('win');
       } else {
         // computer wins
         computerScore++;
         computerScoreEl.textContent = computerScore;
-        resultText.textContent = 'संगणक जिंकले 😵';
-        roundInfo.textContent = `${emojiFor(compMove)} हरवले ${emojiFor(playerMove)}`;
+        resultText.textContent = 'Computer wins 😵';
+        roundInfo.textContent = `${emojiFor(compMove)} beats ${emojiFor(playerMove)}`;
         setResultStyle('lose');
       }
 
@@ -135,17 +135,17 @@
       box.classList.add(kind);
     }
 
-    // बटणे ऐकणे
+    // listen to buttons
     document.querySelectorAll('.btn[data-move]').forEach(btn=>{
       btn.addEventListener('click', ()=> playRound(btn.dataset.move));
     });
 
-    // रीसेट
+    // reset
     document.getElementById('resetBtn').addEventListener('click', ()=>{
       playerScore = 0; computerScore = 0;
       playerScoreEl.textContent = '0';
       computerScoreEl.textContent = '0';
-      resultText.textContent = 'रीसेट झाले — पुन्हा सुरुवात करा';
+      resultText.textContent = 'Reset — Start again';
       roundInfo.textContent = '';
       playerPick.textContent = '—';
       computerPick.textContent = '—';
@@ -153,7 +153,7 @@
       setResultStyle('draw');
     });
 
-    // कीबोर्ड शॉर्टकट्स
+    // keyboard shortcuts
     window.addEventListener('keydown', (e)=>{
       const k = e.key.toLowerCase();
       if(k === 'r') playRound('rock');
@@ -161,7 +161,7 @@
       if(k === 's') playRound('scissors');
     });
 
-    // सुरुवातीची स्थिती
+    // initial state
     setResultStyle('draw');
   </script>
 </body>
